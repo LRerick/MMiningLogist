@@ -2,7 +2,7 @@
 const SUPABASE_URL = "https://pbcbjwoicroxajbeyzru.supabase.co/rest/v1/";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBiY2Jqd29pY3JveGFqYmV5enJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwODMwMzcsImV4cCI6MjEwNTY1OTAzN30.BSQ1HdfZtARt9vv2kGgAcMHP4RiGSx93zvJ7x5vopQ0";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const _supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Elementos del DOM
 const tablaCuerpo = document.getElementById("cuerpo-tabla");
