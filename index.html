@@ -3,31 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LogiStock - Gestión de Almacén y Vales</title>
+    <title>MACMINING - Sistema Logístico Huachipa</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="layout">
+        <!-- Barra Lateral de Navegación -->
         <aside class="sidebar no-print">
-            <h2>LogiStock</h2>
+            <h2>MACMINING</h2>
+            <p class="sidebar-sub">Taller Huachipa</p>
             <div class="nav-tabs">
-                <label for="tab-inventario" class="nav-item">📦 Inventario</label>
+                <label for="tab-dashboard" class="nav-item">📊 Dashboard & Registro</label>
+                <label for="tab-inventario" class="nav-item">📦 Inventario Maestro</label>
                 <label for="tab-salidas" class="nav-item">📤 Vale de Salida</label>
                 <label for="tab-entradas" class="nav-item">📥 Vale de Entrada</label>
             </div>
+            <div class="sidebar-footer">
+                <span>Gestión Logística v2.5</span>
+            </div>
         </aside>
 
-        <input type="radio" name="vista" id="tab-inventario" checked>
+        <!-- Selectores de pestañas CSS -->
+        <input type="radio" name="vista" id="tab-dashboard" checked>
+        <input type="radio" name="vista" id="tab-inventario">
         <input type="radio" name="vista" id="tab-salidas">
         <input type="radio" name="vista" id="tab-entradas">
 
         <main class="main-content">
-            <!-- VISTA: INVENTARIO -->
+            <!-- PESTAÑA 1: DASHBOARD Y SEGUIMIENTO -->
+            <section class="view-panel" id="panel-dashboard">
+                <header class="panel-header">
+                    <h1>Seguimiento de Movimientos de Almacén</h1>
+                    <span class="badge">Auditoría en Tiempo Real</span>
+                </header>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <span class="label">Total Repuestos en Maestro</span>
+                        <span class="value" id="dash-total-items">0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="label">Stock Crítico (≤ 2 und)</span>
+                        <span class="value alert" id="dash-stock-critico">0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="label">Vales de Salida Emitidos</span>
+                        <span class="value salida-val" id="dash-total-salidas">0</span>
+                    </div>
+                    <div class="metric-card">
+                        <span class="label">Vales de Entrada Registrados</span>
+                        <span class="value entrada-val" id="dash-total-entradas">0</span>
+                    </div>
+                </div>
+
+                <div class="panel-subheader">
+                    <h3>Registro Histórico Detallado (Kárdex de Movimientos)</h3>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-exportar-historial">📥 Exportar Historial CSV</button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>N° Vale</th>
+                                <th>Motivo</th>
+                                <th>N° Parte / Código</th>
+                                <th>Descripción</th>
+                                <th>Cant.</th>
+                                <th>Responsable / Solicitante</th>
+                                <th>Destino / Origen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpo-historial">
+                            <tr><td colspan="9" style="text-align: center; color: #64748b; padding: 20px;">No se registran movimientos aún.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PESTAÑA 2: INVENTARIO -->
             <section class="view-panel" id="panel-inventario">
                 <header class="panel-header">
-                    <h1>Control de Inventario de Repuestos</h1>
-                    <span class="badge">Sincronizado</span>
+                    <h1>Inventario General de Repuestos</h1>
+                    <div class="header-actions">
+                        <input type="file" id="input-csv" accept=".csv" style="display: none;">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('input-csv').click()">📥 Importar CSV</button>
+                        <button type="button" class="btn btn-secondary" id="btn-exportar-csv">📤 Descargar CSV Actualizado</button>
+                    </div>
                 </header>
 
                 <div class="filtro-barra">
@@ -35,31 +99,23 @@
                         <label>Filtrar por Equipo:</label>
                         <select id="filtro-equipo">
                             <option value="TODOS">-- Todos los Equipos --</option>
-                            <option value="FAMBITION FL04">FAMBITION FL04</option>
-                            <option value="FAMBITION FL07">FAMBITION FL07</option>
-                            <option value="FAMBITION FL10">FAMBITION FL10</option>
-                            <option value="FAMBITION FT15">FAMBITION FT15</option>
-                            <option value="FAMBITION FT20">FAMBITION FT20</option>
-                            <option value="OCMER">OCMER</option>
-                            <option value="ROBOT CH14">ROBOT CH14</option>
-                            <option value="LORENZANA">LORENZANA</option>
-                            <option value="RIMEA">RIMEA</option>
-                            <option value="MOTOR DEUTZ">MOTOR DEUTZ</option>
-                            <option value="SANDVIK">SANDVIK</option>
-                            <option value="JUMBO DD320-DD321">JUMBO DD320-DD321</option>
-                            <option value="HURON VA30 MOTOR DEUTZ">HURON VA30 MOTOR DEUTZ</option>
                         </select>
                     </div>
                     <div class="form-group" style="flex: 2;">
                         <label>Buscar Repuesto:</label>
-                        <input type="text" id="input-busqueda" placeholder="Buscar por N° parte, descripción o código...">
+                        <input type="text" id="input-busqueda" placeholder="Buscar por N° de parte, descripción, código, marca o ubicación...">
                     </div>
                 </div>
 
-                <div class="table-container" style="margin-top: 15px;">
-                    <table class="data-table">
+                <div class="alert-info">
+                    💡 <em>Puedes hacer doble clic o editar directamente las columnas <strong>Observación</strong>, <strong>Stock</strong> y <strong>Ubicación</strong>. Los cambios se guardan automáticamente.</em>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="tabla-inventario-editable">
                         <thead>
                             <tr>
+                                <th>Marca</th>
                                 <th>Equipo</th>
                                 <th>Item</th>
                                 <th>Descripción</th>
@@ -67,30 +123,33 @@
                                 <th>Cód Comercial</th>
                                 <th>Unidad</th>
                                 <th>Stock</th>
+                                <th>Ubicación</th>
+                                <th>Observaciones (Editable)</th>
+                                <th>Acción</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tabla">
-                            <tr><td colspan="7" style="text-align: center;">Conectando a Supabase...</td></tr>
+                            <tr><td colspan="11" style="text-align: center; padding: 20px;">Cargando inventario...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- VISTA: VALE DE SALIDA (FÍSICO HUACHIPA) -->
+            <!-- PESTAÑA 3: VALE DE SALIDA (FORMATO TALLER HUACHIPA) -->
             <section class="view-panel" id="panel-salidas">
                 <header class="panel-header no-print">
                     <h1>Emisión de Vale de Salida</h1>
                     <div>
-                        <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir Vale</button>
+                        <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir Vale / Guardar PDF</button>
                     </div>
                 </header>
 
                 <form id="form-salida">
                     <div class="vale-fisico-container">
-                        <!-- Cabecera del Vale -->
+                        <!-- Cabecera -->
                         <div class="vale-header">
                             <div class="vale-logo">
-                                <h3>MACMINING / TALLER</h3>
+                                <h3>MACMINING</h3>
                                 <p>SISTEMA DE GESTIÓN LOGÍSTICA</p>
                             </div>
                             <div class="vale-titulo-bloque">
@@ -106,15 +165,17 @@
                             </div>
                         </div>
 
-                        <!-- Bloque de Checkboxes y Metadatos Superiores -->
+                        <!-- Metadatos superiores con MOTIVO SALIDA -->
                         <div class="vale-meta-grid">
-                            <div class="meta-box">
-                                <span class="box-title">1.- CENTRO DE COSTOS</span>
-                                <div class="checkbox-group">
-                                    <label><input type="radio" name="centro_costos" value="VENTA"> VENTA</label>
-                                    <label><input type="radio" name="centro_costos" value="TALLER" checked> TALLER</label>
-                                    <label><input type="radio" name="centro_costos" value="EQ ALQUILER"> EQ ALQUILER</label>
-                                    <label><input type="radio" name="centro_costos" value="GARANTIA"> GARANTIA</label>
+                            <div class="meta-box motivo-salida-box">
+                                <span class="box-title">1.- MOTIVO SALIDA</span>
+                                <div class="checkbox-group-grid">
+                                    <label><input type="radio" name="motivo_salida" value="VENTA"> VENTA</label>
+                                    <label><input type="radio" name="motivo_salida" value="GARANTIA"> GARANTIA</label>
+                                    <label><input type="radio" name="motivo_salida" value="REPUESTO ESTRATEGICO"> REPUESTO ESTRATÉGICO</label>
+                                    <label><input type="radio" name="motivo_salida" value="REPARACION DEL TALLER" checked> REPARACIÓN DEL TALLER</label>
+                                    <label><input type="radio" name="motivo_salida" value="REPUESTO PARA MINA"> REPUESTO PARA MINA</label>
+                                    <label><input type="radio" name="motivo_salida" value="EQUIPOS ALQUILER"> EQUIPOS ALQUILER</label>
                                 </div>
                             </div>
                             <div class="meta-box">
@@ -128,33 +189,33 @@
                             <div class="meta-box">
                                 <span class="box-title">5.- UBICACIÓN DE REPUESTOS</span>
                                 <div class="checkbox-group">
-                                    <label><input type="radio" name="ubicacion_repuestos" value="TRANSITO"> TRANSITO</label>
-                                    <label><input type="radio" name="ubicacion_repuestos" value="ALMACEN" checked> ALMACEN</label>
+                                    <label><input type="radio" name="ubicacion_repuestos" value="TRANSITO"> TRÁNSITO</label>
+                                    <label><input type="radio" name="ubicacion_repuestos" value="ALMACEN" checked> ALMACÉN</label>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Solicitante y Destino -->
+                        <!-- Solicitud y Destino -->
                         <div class="vale-solicitud-grid">
                             <div class="fila-solicitud">
                                 <label>6.- SOLICITA:</label>
                                 <input type="text" id="sal-solicita" class="input-linea" placeholder="Nombre de quien solicita" required>
-                                <label style="margin-left: 20px;">7.- FIRMA:</label>
+                                <label style="margin-left: 20px;">7.- FIRMA SOLICITANTE:</label>
                                 <span class="linea-firma-vacia"></span>
                             </div>
                             <div class="fila-solicitud">
                                 <label>8.- DESTINO:</label>
-                                <input type="text" id="sal-destino" class="input-linea" placeholder="Ej: Super MP2..." required>
+                                <input type="text" id="sal-destino" class="input-linea" placeholder="Ej: Super MP2 / Frente Mina" required>
                             </div>
                         </div>
 
-                        <!-- Selector rápido para agregar ítems a la tabla -->
+                        <!-- Barra de búsqueda rápida para agregar ítems -->
                         <div class="buscador-item-vale no-print">
-                            <input type="text" id="add-item-busqueda" placeholder="Buscar repuesto por N° Parte o Código...">
-                            <button type="button" class="btn btn-secondary" id="btn-agregar-item">➕ Agregar al Vale</button>
+                            <input type="text" id="add-item-busqueda" placeholder="Buscar repuesto en el inventario por N° parte o código...">
+                            <button type="button" class="btn btn-secondary" id="btn-agregar-item">➕ Añadir al Vale</button>
                         </div>
 
-                        <!-- Tabla del Vale Físico -->
+                        <!-- Tabla física del vale -->
                         <table class="vale-items-table">
                             <thead>
                                 <tr>
@@ -176,19 +237,21 @@
                             </tbody>
                         </table>
 
-                        <!-- Pie del Vale: Especificaciones y Firmas -->
+                        <!-- Pie del vale: Especificaciones y Firmas interactivas en Canvas -->
                         <div class="vale-footer-grid">
                             <div class="especificaciones-box">
                                 <label>ESPECIFICACIONES DE USO:</label>
-                                <textarea id="sal-especificaciones" rows="3" placeholder="Detalles de instalación o uso..."></textarea>
+                                <textarea id="sal-especificaciones" rows="4" placeholder="Detalles de instalación o uso..."></textarea>
                             </div>
                             <div class="firmas-box">
                                 <div class="firma-columna">
-                                    <div class="espacio-firma"></div>
+                                    <canvas id="canvas-autorizado" class="signature-pad" width="220" height="90"></canvas>
+                                    <button type="button" class="btn-clear-sig no-print" onclick="limpiarFirma('canvas-autorizado')">Borrar Firma</button>
                                     <p>AUTORIZADO</p>
                                 </div>
                                 <div class="firma-columna">
-                                    <div class="espacio-firma"></div>
+                                    <canvas id="canvas-almacen" class="signature-pad" width="220" height="90"></canvas>
+                                    <button type="button" class="btn-clear-sig no-print" onclick="limpiarFirma('canvas-almacen')">Borrar Firma</button>
                                     <p>ALMACÉN</p>
                                 </div>
                             </div>
@@ -196,12 +259,12 @@
                     </div>
 
                     <div class="form-actions no-print" style="margin-top: 15px;">
-                        <button type="submit" class="btn btn-danger">Guardar Vale y Descontar del Almacén</button>
+                        <button type="submit" class="btn btn-danger">Emitir Vale, Descontar Stock y Guardar Registro</button>
                     </div>
                 </form>
             </section>
 
-            <!-- VISTA: VALE DE ENTRADA -->
+            <!-- PESTAÑA 4: VALE DE ENTRADA -->
             <section class="view-panel" id="panel-entradas">
                 <header class="panel-header">
                     <h1>Registro de Vale de Entrada (Ingreso a Almacén)</h1>
@@ -209,35 +272,49 @@
 
                 <form class="form-grid" id="form-entrada">
                     <div class="form-group">
-                        <label>N° de Vale de Ingreso</label>
+                        <label>N° de Vale de Entrada</label>
                         <input type="text" id="ent-nro" value="ENT-2026-001" required>
                     </div>
                     <div class="form-group">
-                        <label>Fecha de Recepción</label>
+                        <label>Fecha de Ingreso</label>
                         <input type="date" id="ent-fecha" required>
                     </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Motivo de Ingreso:</label>
+                        <div class="radio-horizontal">
+                            <label><input type="radio" name="motivo_ingreso" value="DEVOLUCION" checked> 🔄 DEVOLUCIÓN</label>
+                            <label><input type="radio" name="motivo_ingreso" value="EXPORTACION"> 🚢 EXPORTACIÓN</label>
+                            <label><input type="radio" name="motivo_ingreso" value="COMPRA LOCAL"> 🛒 COMPRA LOCAL</label>
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label>Proveedor / Empresa</label>
-                        <input type="text" id="ent-prov" placeholder="Ej: Sandvik del Perú" required>
+                        <label>Proveedor / Origen</label>
+                        <input type="text" id="ent-prov" placeholder="Nombre de proveedor o mina de retorno" required>
                     </div>
                     <div class="form-group">
-                        <label>Orden de Compra / Guía</label>
-                        <input type="text" id="ent-oc" placeholder="Ej: OC-8921">
+                        <label>Orden de Compra / Guía de Remisión</label>
+                        <input type="text" id="ent-oc" placeholder="Ej: OC-8921 / GR-0043">
                     </div>
                     <div class="form-group full-width">
-                        <label>Nº de Parte o Código Comercial a ingresar</label>
-                        <input type="text" id="ent-item" placeholder="Ingresa el N° de parte exacto" required>
+                        <label>Nº de Parte o Código Comercial existente en Inventario</label>
+                        <input type="text" id="ent-item" placeholder="Ingresa exactamente el código para sumarle stock" required>
                     </div>
                     <div class="form-group">
-                        <label>Cantidad que Ingresa</label>
+                        <label>Cantidad Ingresada</label>
                         <input type="number" id="ent-cant" min="1" value="1" required>
                     </div>
+                    <div class="form-group">
+                        <label>Ubicación de Destino en Almacén</label>
+                        <input type="text" id="ent-ubicacion" placeholder="Ej: Estante A-2, Patio 1">
+                    </div>
                     <div class="form-group full-width">
-                        <label>Observaciones de Entrega</label>
-                        <textarea id="ent-obs" rows="2" placeholder="Estado del empaque, certificado de calidad..."></textarea>
+                        <label>Observaciones de Recepción</label>
+                        <textarea id="ent-obs" rows="3" placeholder="Estado del material, condición física, precinto..."></textarea>
                     </div>
                     <div class="form-actions full-width">
-                        <button type="submit" class="btn btn-primary">Registrar Ingreso y Sumar al Stock</button>
+                        <button type="submit" class="btn btn-primary">Registrar Ingreso, Sumar Stock y Guardar Registro</button>
                     </div>
                 </form>
             </section>
