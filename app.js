@@ -1,4 +1,5 @@
-// --- CLAVES DE ALMACENAMIENTO LOCAL ---
+// --- CONFIGURACIÓN Y ARCHIVO AUTOMÁTICO ---
+const CSV_URL = "carga_supabase.csv"; // Nombre de tu archivo CSV en GitHub
 const DB_KEY_INVENTARIO = "logistock_inventario_v2";
 const DB_KEY_HISTORIAL = "logistock_historial_v2";
 
@@ -11,7 +12,6 @@ const tablaCuerpo = document.getElementById("cuerpo-tabla");
 const cuerpoHistorial = document.getElementById("cuerpo-historial");
 const filtroEquipo = document.getElementById("filtro-equipo");
 const inputBusqueda = document.getElementById("input-busqueda");
-const inputCSV = document.getElementById("input-csv");
 const btnExportarCSV = document.getElementById("btn-exportar-csv");
 const btnExportarHistorial = document.getElementById("btn-exportar-historial");
 
@@ -27,7 +27,73 @@ const inputBusquedaVale = document.getElementById("add-item-busqueda");
 const valeItemsBody = document.getElementById("vale-salida-items-body");
 
 // ==========================================
-// 1. INVENTARIO (RENDERIZADO Y EDICIÓN INLINE)
+// 1. CARGA AUTOMÁTICA DEL CSV DESDE GITHUB
+// ==========================================
+async function cargarCSVAutomatico() {
+    // Si ya hay cambios guardados en localStorage, los usamos para no sobreescribir vales emitidos
+    if (inventario.length > 0) {
+        renderizarInventario();
+        return;
+    }
+
+    if (tablaCuerpo) {
+        tablaCuerpo.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:20px;">Cargando inventario automáticamente desde GitHub...</td></tr>`;
+    }
+
+    try {
+        const respuesta = await fetch(CSV_URL);
+        if (!respuesta.ok) {
+            throw new Error(`No se pudo cargar el archivo ${CSV_URL} (Error ${respuesta.status})`);
+        }
+
+        const textoCSV = await respuesta.text();
+        const lineas = textoCSV.split(/\r?\n/).filter(l => l.trim() !== "");
+        
+        if (lineas.length < 2) {
+            throw new Error("El archivo CSV está vacío.");
+        }
+
+        const sep = lineas[0].includes(";") ? ";" : ",";
+        const cabeceras = lineas[0].split(sep).map(c => c.trim().toLowerCase().replace(/"/g, ""));
+
+        const parseados = [];
+        for (let i = 1; i < lineas.length; i++) {
+            const fila = lineas[i].split(sep).map(val => val.trim().replace(/"/g, ""));
+            if (fila.length < cabeceras.length) continue;
+
+            let itemObj = {};
+            cabeceras.forEach((col, idx) => {
+                itemObj[col] = fila[idx] || "";
+            });
+
+            itemObj.stock = parseFloat(itemObj.stock) || 0;
+            parseados.push(itemObj);
+        }
+
+        inventario = parseados;
+        localStorage.setItem(DB_KEY_INVENTARIO, JSON.stringify(inventario));
+        renderizarInventario();
+
+    } catch (err) {
+        console.error("Error al cargar CSV:", err);
+        if (tablaCuerpo) {
+            tablaCuerpo.innerHTML = `<tr><td colspan="11" style="color:red; text-align:center; padding:20px;">Error al cargar automáticamente: ${err.message}. Verifica que '${CSV_URL}' esté en la raíz de tu GitHub.</td></tr>`;
+        }
+    }
+}
+
+// Función para reiniciar al archivo original si deseas descartar pruebas
+window.recargarCSVOriginal = async function() {
+    if (confirm("¿Deseas restablecer el inventario original desde GitHub? Se mantendrán los registros de vales.")) {
+        localStorage.removeItem(DB_KEY_INVENTARIO);
+        inventario = [];
+        await cargarCSVAutomatico();
+        alert("¡Inventario restablecido con el CSV original!");
+    }
+};
+
+// ==========================================
+// 2. INVENTARIO (RENDERIZADO Y EDICIÓN INLINE)
 // ==========================================
 function renderizarInventario() {
     actualizarEquiposEnFiltro();
@@ -55,7 +121,7 @@ function renderizarInventario() {
     }
 
     if (items.length === 0) {
-        tablaCuerpo.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#64748b; padding:15px;">No se encontraron repuestos. Presiona "Importar CSV" si aún no cargaste tus datos.</td></tr>`;
+        tablaCuerpo.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#64748b; padding:15px;">No se encontraron repuestos con los filtros actuales.</td></tr>`;
         return;
     }
 
@@ -63,7 +129,7 @@ function renderizarInventario() {
         const stk = parseFloat(r.stock) || 0;
         const tagClass = stk <= 2 ? "warning" : "ok";
         return `
-            <tr data-index="${idx}">
+            <tr>
                 <td><strong>${r.marca || "-"}</strong></td>
                 <td>${r.equipo || "-"}</td>
                 <td>${r.item || "-"}</td>
@@ -72,13 +138,13 @@ function renderizarInventario() {
                 <td><code>${r.cod_comercial || "-"}</code></td>
                 <td>${r.unidad || "UND"}</td>
                 <td>
-                    <input type="number" class="cell-input stock-edit" value="${stk}" min="0" style="width: 70px;" onchange="guardarCambioFila(${idx}, 'stock', this.value)">
+                    <input type="number" class="cell-input" value="${stk}" min="0" style="width: 70px;" onchange="guardarCambioFila(${idx}, 'stock', this.value)">
                 </td>
                 <td>
-                    <input type="text" class="cell-input ubicacion-edit" value="${r.ubicacion || ''}" placeholder="Ej: A-1" onchange="guardarCambioFila(${idx}, 'ubicacion', this.value)">
+                    <input type="text" class="cell-input" value="${r.ubicacion || ''}" placeholder="Ej: A-1" onchange="guardarCambioFila(${idx}, 'ubicacion', this.value)">
                 </td>
                 <td>
-                    <input type="text" class="cell-input obs-edit" value="${r.observacion || ''}" placeholder="Agregar nota..." onchange="guardarCambioFila(${idx}, 'observacion', this.value)">
+                    <input type="text" class="cell-input" value="${r.observacion || ''}" placeholder="Agregar nota..." onchange="guardarCambioFila(${idx}, 'observacion', this.value)">
                 </td>
                 <td>
                     <span class="tag ${tagClass}">${stk <= 2 ? 'Crítico' : 'OK'}</span>
@@ -88,7 +154,6 @@ function renderizarInventario() {
     }).join("");
 }
 
-// Modificar datos directamente en inventario
 window.guardarCambioFila = function(index, campo, valor) {
     if (inventario[index]) {
         inventario[index][campo] = campo === 'stock' ? (parseFloat(valor) || 0) : valor;
@@ -111,7 +176,7 @@ function actualizarEquiposEnFiltro() {
 }
 
 // ==========================================
-// 2. DASHBOARD Y HISTORIAL DE MOVIMIENTOS
+// 3. DASHBOARD Y HISTORIAL
 // ==========================================
 function actualizarDashboard() {
     if (dashTotal) dashTotal.textContent = inventario.length;
@@ -149,50 +214,11 @@ function actualizarDashboard() {
 }
 
 // ==========================================
-// 3. IMPORTAR / EXPORTAR CSV
+// 4. EXPORTACIONES CSV
 // ==========================================
-if (inputCSV) {
-    inputCSV.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const lineas = evt.target.result.split(/\r?\n/).filter(l => l.trim() !== "");
-            if (lineas.length < 2) return alert("El archivo CSV no contiene filas de datos.");
-
-            const sep = lineas[0].includes(";") ? ";" : ",";
-            const cabeceras = lineas[0].split(sep).map(c => c.trim().toLowerCase().replace(/"/g, ""));
-
-            const parseados = [];
-            for (let i = 1; i < lineas.length; i++) {
-                const fila = lineas[i].split(sep).map(val => val.trim().replace(/"/g, ""));
-                if (fila.length < cabeceras.length) continue;
-
-                let itemObj = {};
-                cabeceras.forEach((col, idx) => {
-                    itemObj[col] = fila[idx] || "";
-                });
-
-                itemObj.stock = parseFloat(itemObj.stock) || 0;
-                parseados.push(itemObj);
-            }
-
-            if (parseados.length > 0) {
-                inventario = parseados;
-                localStorage.setItem(DB_KEY_INVENTARIO, JSON.stringify(inventario));
-                alert(`¡Se importaron ${parseados.length} repuestos correctamente!`);
-                renderizarInventario();
-            }
-        };
-        reader.readAsText(file);
-    });
-}
-
 if (btnExportarCSV) {
     btnExportarCSV.addEventListener("click", () => {
-        if (inventario.length === 0) return alert("No hay datos en el inventario para exportar.");
-
+        if (inventario.length === 0) return alert("No hay datos para exportar.");
         const cabeceras = ["marca", "equipo", "item", "descripcion", "nro_parte", "cod_comercial", "observacion", "unidad", "stock", "ubicacion"];
         const lineas = [cabeceras.join(",")];
 
@@ -202,9 +228,8 @@ if (btnExportarCSV) {
         });
 
         const blob = new Blob([lineas.join("\n")], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = url;
+        link.href = URL.createObjectURL(blob);
         link.download = `Inventario_Huachipa_${new Date().toISOString().slice(0,10)}.csv`;
         link.click();
     });
@@ -212,8 +237,7 @@ if (btnExportarCSV) {
 
 if (btnExportarHistorial) {
     btnExportarHistorial.addEventListener("click", () => {
-        if (historial.length === 0) return alert("No hay movimientos registrados para exportar.");
-
+        if (historial.length === 0) return alert("No hay movimientos registrados.");
         const cabeceras = ["fecha", "tipo", "nro_vale", "motivo", "nro_parte", "descripcion", "cantidad", "responsable", "destino_origen"];
         const lineas = [cabeceras.join(",")];
 
@@ -223,16 +247,15 @@ if (btnExportarHistorial) {
         });
 
         const blob = new Blob([lineas.join("\n")], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = url;
+        link.href = URL.createObjectURL(blob);
         link.download = `Historial_Movimientos_${new Date().toISOString().slice(0,10)}.csv`;
         link.click();
     });
 }
 
 // ==========================================
-// 4. VALE DE SALIDA (DESCUENTO Y FIRMAS)
+// 5. VALES DE SALIDA Y ENTRADA
 // ==========================================
 if (btnAgregarFila) {
     btnAgregarFila.addEventListener("click", () => {
@@ -276,7 +299,6 @@ if (formSalida) {
             const desc = fila.querySelector(".desc-input").value.trim();
             const cant = parseFloat(fila.querySelector(".cant-input").value) || 0;
 
-            // Descontar del inventario maestro
             const rep = inventario.find(i => 
                 (i.nro_parte || "").toLowerCase() === parte.toLowerCase() ||
                 (i.cod_comercial || "").toLowerCase() === parte.toLowerCase()
@@ -286,7 +308,6 @@ if (formSalida) {
                 rep.stock = Math.max(0, (parseFloat(rep.stock) || 0) - cant);
             }
 
-            // Registrar en historial
             historial.push({
                 fecha: fecha,
                 tipo: "SALIDA",
@@ -303,14 +324,11 @@ if (formSalida) {
         localStorage.setItem(DB_KEY_INVENTARIO, JSON.stringify(inventario));
         localStorage.setItem(DB_KEY_HISTORIAL, JSON.stringify(historial));
 
-        alert(`¡Vale de Salida Nº ${nroVale} registrado! Stock actualizado y movimiento guardado.`);
+        alert(`¡Vale de Salida Nº ${nroVale} registrado con éxito! Stock actualizado.`);
         renderizarInventario();
     });
 }
 
-// ==========================================
-// 5. VALE DE ENTRADA (AUMENTO Y REGISTRO)
-// ==========================================
 if (formEntrada) {
     formEntrada.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -329,7 +347,7 @@ if (formEntrada) {
         );
 
         if (!rep) {
-            alert("El N° de parte no existe en el inventario. Agrégalo o verifica el código.");
+            alert("El N° de parte no existe en el inventario maestro.");
             return;
         }
 
@@ -351,14 +369,14 @@ if (formEntrada) {
         localStorage.setItem(DB_KEY_INVENTARIO, JSON.stringify(inventario));
         localStorage.setItem(DB_KEY_HISTORIAL, JSON.stringify(historial));
 
-        alert(`¡Vale de Entrada Nº ${nroVale} registrado con éxito! Stock sumado.`);
+        alert(`¡Vale de Entrada Nº ${nroVale} registrado! Stock incrementado.`);
         formEntrada.reset();
         renderizarInventario();
     });
 }
 
 // ==========================================
-// 6. LIENZOS DE FIRMA DIGITAL (CANVAS)
+// 6. FIRMA DIGITAL (CANVAS)
 // ==========================================
 function inicializarCanvasFirma(id) {
     const canvas = document.getElementById(id);
@@ -416,7 +434,7 @@ window.limpiarFirma = function(id) {
 };
 
 // ==========================================
-// 7. INICIALIZACIÓN
+// 7. INICIALIZACIÓN AUTOMÁTICA
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
     const salFecha = document.getElementById("sal-fecha");
@@ -431,5 +449,6 @@ document.addEventListener("DOMContentLoaded", () => {
     inicializarCanvasFirma("canvas-autorizado");
     inicializarCanvasFirma("canvas-almacen");
 
-    renderizarInventario();
+    // Iniciar carga automática del CSV desde el repositorio
+    cargarCSVAutomatico();
 });
