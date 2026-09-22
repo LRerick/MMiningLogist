@@ -2,12 +2,12 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
 body {
     background-color: #f1f5f9;
-    color: #1e293b;
+    color: #0f172a;
 }
 
 .layout {
@@ -21,51 +21,75 @@ input[type="radio"][name="vista"] {
 
 /* Sidebar */
 .sidebar {
-    width: 240px;
+    width: 250px;
     background-color: #0f172a;
     color: #fff;
-    padding: 20px 14px;
+    padding: 24px 16px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .sidebar h2 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     color: #38bdf8;
-    padding-left: 10px;
+    letter-spacing: 0.5px;
+    padding-left: 8px;
+}
+
+.sidebar-sub {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    padding-left: 8px;
+    letter-spacing: 1px;
 }
 
 .nav-tabs {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    margin-top: 10px;
 }
 
 .nav-item {
-    padding: 10px 14px;
+    display: block;
+    padding: 11px 14px;
     border-radius: 6px;
     color: #94a3b8;
     cursor: pointer;
+    font-size: 0.9rem;
     font-weight: 500;
+    transition: all 0.2s;
 }
 
 .nav-item:hover {
-    background: #1e293b;
+    background-color: #1e293b;
     color: #fff;
 }
 
+#tab-dashboard:checked ~ .layout .sidebar label[for="tab-dashboard"],
 #tab-inventario:checked ~ .layout .sidebar label[for="tab-inventario"],
 #tab-salidas:checked ~ .layout .sidebar label[for="tab-salidas"],
 #tab-entradas:checked ~ .layout .sidebar label[for="tab-entradas"] {
     background-color: #0284c7;
     color: #ffffff;
+    font-weight: 600;
 }
 
+.sidebar-footer {
+    margin-top: auto;
+    font-size: 0.75rem;
+    color: #64748b;
+    padding-left: 8px;
+}
+
+/* Vistas de Contenido */
 .view-panel {
     display: none;
 }
 
+#tab-dashboard:checked ~ .main-content #panel-dashboard,
 #tab-inventario:checked ~ .main-content #panel-inventario,
 #tab-salidas:checked ~ .main-content #panel-salidas,
 #tab-entradas:checked ~ .main-content #panel-entradas {
@@ -83,11 +107,67 @@ input[type="radio"][name="vista"] {
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid #cbd5e1;
-    padding-bottom: 10px;
-    margin-bottom: 18px;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
 }
 
-/* Filtros y Tablas Generales */
+.panel-header h1 {
+    font-size: 1.4rem;
+    color: #0f172a;
+}
+
+.badge {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Dashboard Cards */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.metric-card {
+    background: #fff;
+    padding: 18px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.metric-card .label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.metric-card .value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.metric-card .value.alert { color: #dc2626; }
+.metric-card .value.salida-val { color: #ea580c; }
+.metric-card .value.entrada-val { color: #16a34a; }
+
+.panel-subheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+/* Filtros e Inputs */
 .filtro-barra {
     display: flex;
     gap: 16px;
@@ -95,6 +175,7 @@ input[type="radio"][name="vista"] {
     padding: 14px 18px;
     border-radius: 6px;
     border: 1px solid #cbd5e1;
+    margin-bottom: 16px;
 }
 
 .form-group {
@@ -114,8 +195,42 @@ input[type="radio"][name="vista"] {
     border: 1px solid #cbd5e1;
     border-radius: 4px;
     font-size: 0.9rem;
+    outline: none;
 }
 
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: #0284c7;
+}
+
+.radio-horizontal {
+    display: flex;
+    gap: 20px;
+    background: #f8fafc;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid #cbd5e1;
+}
+
+.radio-horizontal label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.alert-info {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: #1e40af;
+    margin-bottom: 14px;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Tablas */
 .table-container {
     background: #fff;
     border-radius: 6px;
@@ -127,6 +242,7 @@ input[type="radio"][name="vista"] {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.85rem;
+    text-align: left;
 }
 
 .data-table th, .data-table td {
@@ -140,6 +256,19 @@ input[type="radio"][name="vista"] {
     font-weight: 600;
 }
 
+.editable-cell {
+    border-bottom: 1px dashed #0284c7;
+    cursor: pointer;
+}
+
+.cell-input {
+    width: 100%;
+    padding: 4px;
+    font-size: 0.85rem;
+    border: 1px solid #0284c7;
+    border-radius: 4px;
+}
+
 .tag {
     padding: 3px 8px;
     border-radius: 4px;
@@ -149,7 +278,7 @@ input[type="radio"][name="vista"] {
 .tag.ok { background: #dcfce7; color: #166534; }
 .tag.warning { background: #fee2e2; color: #991b1b; }
 
-/* DISEÑO DEL VALE FÍSICO (TALLER HUACHIPA) */
+/* DISEÑO DE VALE FÍSICO HUACHIPA */
 .vale-fisico-container {
     background: #ffffff;
     border: 2px solid #1e3a8a;
@@ -168,9 +297,11 @@ input[type="radio"][name="vista"] {
 }
 
 .vale-logo h3 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #1e3a8a;
+    letter-spacing: 0.5px;
 }
+
 .vale-logo p {
     font-size: 0.65rem;
     color: #64748b;
@@ -185,9 +316,8 @@ input[type="radio"][name="vista"] {
 }
 
 .vale-titulo-bloque h2 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: #1e3a8a;
-    letter-spacing: 0.5px;
 }
 
 .vale-nro-bloque {
@@ -216,6 +346,7 @@ input[type="radio"][name="vista"] {
     font-size: 0.75rem;
     margin-top: 5px;
 }
+
 .sub-fecha input {
     border: 1px solid #94a3b8;
     padding: 2px 4px;
@@ -224,7 +355,7 @@ input[type="radio"][name="vista"] {
 
 .vale-meta-grid {
     display: grid;
-    grid-template-columns: 1.5fr 1.2fr 1fr 1.3fr;
+    grid-template-columns: 2fr 1.2fr 1fr 1.2fr;
     border-bottom: 1px solid #1e3a8a;
 }
 
@@ -232,6 +363,7 @@ input[type="radio"][name="vista"] {
     border-right: 1px solid #1e3a8a;
     padding: 8px;
 }
+
 .meta-box:last-child {
     border-right: none;
 }
@@ -244,11 +376,19 @@ input[type="radio"][name="vista"] {
     margin-bottom: 4px;
 }
 
-.checkbox-group {
+.checkbox-group-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 6px;
+    font-size: 0.7rem;
+}
+
+.checkbox-group-grid label, .checkbox-group label {
     display: flex;
-    flex-direction: column;
-    gap: 3px;
-    font-size: 0.75rem;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    white-space: nowrap;
 }
 
 .input-linea {
@@ -274,6 +414,7 @@ input[type="radio"][name="vista"] {
     align-items: center;
     gap: 8px;
 }
+
 .fila-solicitud label {
     font-weight: 700;
     color: #1e3a8a;
@@ -291,6 +432,7 @@ input[type="radio"][name="vista"] {
     gap: 10px;
     padding: 10px 0;
 }
+
 .buscador-item-vale input {
     flex: 1;
     padding: 6px 10px;
@@ -327,7 +469,7 @@ input[type="radio"][name="vista"] {
 
 .vale-footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1.5fr;
+    grid-template-columns: 1.8fr 1.6fr;
     border: 1px solid #1e3a8a;
     border-top: none;
 }
@@ -336,12 +478,14 @@ input[type="radio"][name="vista"] {
     padding: 8px;
     border-right: 1px solid #1e3a8a;
 }
+
 .especificaciones-box label {
     font-size: 0.68rem;
     font-weight: 700;
     color: #1e3a8a;
     display: block;
 }
+
 .especificaciones-box textarea {
     width: 100%;
     border: none;
@@ -350,26 +494,45 @@ input[type="radio"][name="vista"] {
     font-size: 0.8rem;
 }
 
+/* Firmas Interactivas */
 .firmas-box {
     display: flex;
 }
+
 .firma-columna {
     flex: 1;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-between;
     border-right: 1px solid #1e3a8a;
     text-align: center;
     font-size: 0.75rem;
     font-weight: 700;
     color: #1e3a8a;
-    padding-bottom: 4px;
+    padding: 4px 6px;
 }
+
 .firma-columna:last-child {
     border-right: none;
 }
-.espacio-firma {
-    height: 55px;
+
+.signature-pad {
+    border: 1px dashed #94a3b8;
+    background-color: #fafafa;
+    cursor: crosshair;
+    width: 100%;
+    height: 70px;
+}
+
+.btn-clear-sig {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 0.65rem;
+    cursor: pointer;
+    text-decoration: underline;
+    margin: 2px 0;
 }
 
 /* Botones */
@@ -379,10 +542,22 @@ input[type="radio"][name="vista"] {
     border-radius: 4px;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s;
 }
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+}
+
 .btn-primary { background: #0284c7; color: #fff; }
+.btn-primary:hover { background: #0369a1; }
+
 .btn-danger { background: #dc2626; color: #fff; }
+.btn-danger:hover { background: #b91c1c; }
+
 .btn-secondary { background: #e2e8f0; color: #1e293b; }
+.btn-secondary:hover { background: #cbd5e1; }
 
 .form-grid {
     background: #fff;
@@ -391,21 +566,18 @@ input[type="radio"][name="vista"] {
     border: 1px solid #cbd5e1;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 14px;
 }
+
 .full-width { grid-column: 1 / -1; }
 
-/* FORMATO DE IMPRESIÓN (OCULTA BOTONES Y SIDEBAR) */
+/* REGLAS DE IMPRESIÓN (OCULTA INTERFAZ Y AJUSTA A HOJA BLANCA) */
 @media print {
-    .no-print, .sidebar, input[type="radio"] {
+    .no-print, .sidebar, input[type="radio"], .btn-clear-sig, .header-actions {
         display: none !important;
     }
-    .layout {
-        display: block;
-    }
-    .main-content {
-        padding: 0;
-    }
+    .layout { display: block; }
+    .main-content { padding: 0; }
     .vale-fisico-container {
         box-shadow: none;
         border: 2px solid #000;
@@ -419,10 +591,11 @@ input[type="radio"][name="vista"] {
         border-color: #000 !important;
         color: #000 !important;
     }
-    .box-title, .fila-solicitud label, .vale-titulo-bloque h2 {
+    .box-title, .fila-solicitud label, .vale-titulo-bloque h2, .lbl-rojo, .input-nro-rojo {
         color: #000 !important;
     }
-    .lbl-rojo, .input-nro-rojo {
-        color: #000 !important;
+    .signature-pad {
+        border: none;
+        background: transparent;
     }
 }
