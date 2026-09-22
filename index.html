@@ -227,22 +227,26 @@
                             <thead>
                                 <tr>
                                     <th style="width: 25%;">CÓDIGO / Nº PARTE</th>
-                                    <th style="width: 35%;">DESCRIPCIÓN</th>
+                                    <th style="width: 32%;">DESCRIPCIÓN</th>
                                     <th style="width: 10%;">UNID</th>
                                     <th style="width: 10%;">CANTIDAD</th>
-                                    <th style="width: 20%;">EQUIPO</th>
+                                    <th style="width: 18%;">EQUIPO</th>
+                                    <th style="width: 5%;" class="no-print">ACCIÓN</th>
                                 </tr>
                             </thead>
-                            <tbody id="vale-salida-items-body">
-                                <tr>
-                                    <td><input type="text" class="input-cell part-input" value="01-00499" required></td>
-                                    <td><input type="text" class="input-cell desc-input" value="Sensor de cilindro Boheo" required></td>
-                                    <td><input type="text" class="input-cell unid-input" value="UND"></td>
-                                    <td><input type="number" class="input-cell cant-input" value="1" min="1" required></td>
-                                    <td><input type="text" class="input-cell equip-input" value="HURON VA30"></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <tbody id="vale-salida-items-body">
+                            <tr>
+                                <td><input type="text" class="input-cell part-input" value="01-00499" required></td>
+                                <td><input type="text" class="input-cell desc-input" value="Sensor de cilindro Boheo" required></td>
+                                <td><input type="text" class="input-cell unid-input" value="UND"></td>
+                                <td><input type="number" class="input-cell cant-input" value="1" min="1" required></td>
+                                <td><input type="text" class="input-cell equip-input" value="HURON VA30"></td>
+                                <td class="no-print">
+                                    <button type="button" class="btn-remove-row" onclick="eliminarFilaVale(this)" title="Quitar este repuesto">✕</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                         <!-- Pie del vale: Especificaciones y Firmas interactivas en Canvas -->
                         <div class="vale-footer-grid">
