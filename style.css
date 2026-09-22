@@ -256,17 +256,16 @@ input[type="radio"][name="vista"] {
     font-weight: 600;
 }
 
-.editable-cell {
-    border-bottom: 1px dashed #0284c7;
-    cursor: pointer;
-}
-
 .cell-input {
     width: 100%;
     padding: 4px;
     font-size: 0.85rem;
-    border: 1px solid #0284c7;
+    border: 1px solid #cbd5e1;
     border-radius: 4px;
+}
+
+.cell-input:focus {
+    border-color: #0284c7;
 }
 
 .tag {
@@ -494,7 +493,7 @@ input[type="radio"][name="vista"] {
     font-size: 0.8rem;
 }
 
-/* Firmas Interactivas */
+/* Firmas */
 .firmas-box {
     display: flex;
 }
@@ -571,36 +570,7 @@ input[type="radio"][name="vista"] {
 
 .full-width { grid-column: 1 / -1; }
 
-/* REGLAS DE IMPRESIÓN (OCULTA INTERFAZ Y AJUSTA A HOJA BLANCA) */
-@media print {
-    .no-print, .sidebar, input[type="radio"], .btn-clear-sig, .header-actions {
-        display: none !important;
-    }
-    .layout { display: block; }
-    .main-content { padding: 0; }
-    .vale-fisico-container {
-        box-shadow: none;
-        border: 2px solid #000;
-        margin: 0;
-        width: 100%;
-        max-width: 100%;
-    }
-    .vale-header, .vale-meta-grid, .meta-box, .vale-solicitud-grid, 
-    .vale-items-table, .vale-items-table th, .vale-items-table td, 
-    .vale-footer-grid, .especificaciones-box, .firma-columna {
-        border-color: #000 !important;
-        color: #000 !important;
-    }
-    .box-title, .fila-solicitud label, .vale-titulo-bloque h2, .lbl-rojo, .input-nro-rojo {
-        color: #000 !important;
-    }
-    .signature-pad {
-        border: none;
-        background: transparent;
-    }
-}
-
-/* BOTONES DEL MENÚ MÓVIL */
+/* Control del Menú Móvil */
 .btn-toggle-menu {
     display: none;
     position: fixed;
@@ -644,7 +614,7 @@ input[type="radio"][name="vista"] {
     z-index: 998;
 }
 
-/* COMPORTAMIENTO PARA PANTALLAS PEQUEÑAS (CELULARES Y TABLETS) */
+/* Responsivo en móviles */
 @media (max-width: 768px) {
     .btn-toggle-menu {
         display: flex;
@@ -656,7 +626,6 @@ input[type="radio"][name="vista"] {
         display: block;
     }
 
-    /* Ocultar la barra lateral fuera de la pantalla por defecto */
     .sidebar {
         position: fixed;
         top: 0;
@@ -668,7 +637,6 @@ input[type="radio"][name="vista"] {
         box-shadow: 3px 0 10px rgba(0,0,0,0.3);
     }
 
-    /* Mostrar la barra lateral cuando tiene la clase 'active' */
     .sidebar.active {
         left: 0;
     }
@@ -677,7 +645,6 @@ input[type="radio"][name="vista"] {
         display: block;
     }
 
-    /* Ajustar el contenido para que ocupe toda la pantalla del teléfono */
     .main-content {
         padding: 60px 14px 20px 14px;
         width: 100%;
@@ -702,31 +669,31 @@ input[type="radio"][name="vista"] {
     }
 }
 
-/* Botón para quitar repuesto del vale */
-.btn-remove-row {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fca5a5;
-    border-radius: 4px;
-    width: 26px;
-    height: 26px;
-    font-size: 0.85rem;
-    font-weight: bold;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-}
-
-.btn-remove-row:hover {
-    background-color: #dc2626;
-    color: #ffffff;
-}
-
-/* En impresión se ocultan por completo los botones y la columna de acción */
+/* Impresión */
 @media print {
-    .btn-remove-row, th.no-print, td.no-print {
+    .no-print, .sidebar, input[type="radio"], .btn-clear-sig, .header-actions {
         display: none !important;
+    }
+    .layout { display: block; }
+    .main-content { padding: 0; }
+    .vale-fisico-container {
+        box-shadow: none;
+        border: 2px solid #000;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    .vale-header, .vale-meta-grid, .meta-box, .vale-solicitud-grid, 
+    .vale-items-table, .vale-items-table th, .vale-items-table td, 
+    .vale-footer-grid, .especificaciones-box, .firma-columna {
+        border-color: #000 !important;
+        color: #000 !important;
+    }
+    .box-title, .fila-solicitud label, .vale-titulo-bloque h2, .lbl-rojo, .input-nro-rojo {
+        color: #000 !important;
+    }
+    .signature-pad {
+        border: none;
+        background: transparent;
     }
 }
