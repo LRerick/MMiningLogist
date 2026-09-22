@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogiStock - Gestión de Almacén y Vales</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar no-print">
+            <h2>LogiStock</h2>
+            <div class="nav-tabs">
+                <label for="tab-inventario" class="nav-item">📦 Inventario</label>
+                <label for="tab-salidas" class="nav-item">📤 Vale de Salida</label>
+                <label for="tab-entradas" class="nav-item">📥 Vale de Entrada</label>
+            </div>
+        </aside>
+
+        <input type="radio" name="vista" id="tab-inventario" checked>
+        <input type="radio" name="vista" id="tab-salidas">
+        <input type="radio" name="vista" id="tab-entradas">
+
+        <main class="main-content">
+            <!-- VISTA: INVENTARIO -->
+            <section class="view-panel" id="panel-inventario">
+                <header class="panel-header">
+                    <h1>Control de Inventario de Repuestos</h1>
+                    <span class="badge">Sincronizado</span>
+                </header>
+
+                <div class="filtro-barra">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Filtrar por Equipo:</label>
+                        <select id="filtro-equipo">
+                            <option value="TODOS">-- Todos los Equipos --</option>
+                            <option value="FAMBITION FL04">FAMBITION FL04</option>
+                            <option value="FAMBITION FL07">FAMBITION FL07</option>
+                            <option value="FAMBITION FL10">FAMBITION FL10</option>
+                            <option value="FAMBITION FT15">FAMBITION FT15</option>
+                            <option value="FAMBITION FT20">FAMBITION FT20</option>
+                            <option value="OCMER">OCMER</option>
+                            <option value="ROBOT CH14">ROBOT CH14</option>
+                            <option value="LORENZANA">LORENZANA</option>
+                            <option value="RIMEA">RIMEA</option>
+                            <option value="MOTOR DEUTZ">MOTOR DEUTZ</option>
+                            <option value="SANDVIK">SANDVIK</option>
+                            <option value="JUMBO DD320-DD321">JUMBO DD320-DD321</option>
+                            <option value="HURON VA30 MOTOR DEUTZ">HURON VA30 MOTOR DEUTZ</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Buscar Repuesto:</label>
+                        <input type="text" id="input-busqueda" placeholder="Buscar por N° parte, descripción o código...">
+                    </div>
+                </div>
+
+                <div class="table-container" style="margin-top: 15px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Equipo</th>
+                                <th>Item</th>
+                                <th>Descripción</th>
+                                <th>Nº Parte</th>
+                                <th>Cód Comercial</th>
+                                <th>Unidad</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpo-tabla">
+                            <tr><td colspan="7" style="text-align: center;">Conectando a Supabase...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VISTA: VALE DE SALIDA (FÍSICO HUACHIPA) -->
+            <section class="view-panel" id="panel-salidas">
+                <header class="panel-header no-print">
+                    <h1>Emisión de Vale de Salida</h1>
+                    <div>
+                        <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir Vale</button>
+                    </div>
+                </header>
+
+                <form id="form-salida">
+                    <div class="vale-fisico-container">
+                        <!-- Cabecera del Vale -->
+                        <div class="vale-header">
+                            <div class="vale-logo">
+                                <h3>MACAFERRI / TALLER</h3>
+                                <p>SISTEMA DE GESTIÓN LOGÍSTICA</p>
+                            </div>
+                            <div class="vale-titulo-bloque">
+                                <h2>SALIDA DE REPUESTOS Y MATERIALES DE ALMACEN TALLER HUACHIPA</h2>
+                            </div>
+                            <div class="vale-nro-bloque">
+                                <span class="lbl-rojo">Nº</span>
+                                <input type="text" id="sal-nro" class="input-nro-rojo" value="000018" required>
+                                <div class="sub-fecha">
+                                    <label>Fecha:</label>
+                                    <input type="date" id="sal-fecha" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bloque de Checkboxes y Metadatos Superiores -->
+                        <div class="vale-meta-grid">
+                            <div class="meta-box">
+                                <span class="box-title">1.- CENTRO DE COSTOS</span>
+                                <div class="checkbox-group">
+                                    <label><input type="radio" name="centro_costos" value="VENTA"> VENTA</label>
+                                    <label><input type="radio" name="centro_costos" value="TALLER" checked> TALLER</label>
+                                    <label><input type="radio" name="centro_costos" value="EQ ALQUILER"> EQ ALQUILER</label>
+                                    <label><input type="radio" name="centro_costos" value="GARANTIA"> GARANTIA</label>
+                                </div>
+                            </div>
+                            <div class="meta-box">
+                                <span class="box-title">3.- NÚMERO DE GUIA DE REMISIÓN</span>
+                                <input type="text" id="sal-guia" class="input-linea" placeholder="GR-XXXX">
+                            </div>
+                            <div class="meta-box">
+                                <span class="box-title">4.- NÚMERO DE OC</span>
+                                <input type="text" id="sal-oc" class="input-linea" value="4400120199">
+                            </div>
+                            <div class="meta-box">
+                                <span class="box-title">5.- UBICACIÓN DE REPUESTOS</span>
+                                <div class="checkbox-group">
+                                    <label><input type="radio" name="ubicacion_repuestos" value="TRANSITO"> TRANSITO</label>
+                                    <label><input type="radio" name="ubicacion_repuestos" value="ALMACEN" checked> ALMACEN</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Solicitante y Destino -->
+                        <div class="vale-solicitud-grid">
+                            <div class="fila-solicitud">
+                                <label>6.- SOLICITA:</label>
+                                <input type="text" id="sal-solicita" class="input-linea" placeholder="Nombre de quien solicita" required>
+                                <label style="margin-left: 20px;">7.- FIRMA:</label>
+                                <span class="linea-firma-vacia"></span>
+                            </div>
+                            <div class="fila-solicitud">
+                                <label>8.- DESTINO:</label>
+                                <input type="text" id="sal-destino" class="input-linea" placeholder="Ej: Super MP2..." required>
+                            </div>
+                        </div>
+
+                        <!-- Selector rápido para agregar ítems a la tabla -->
+                        <div class="buscador-item-vale no-print">
+                            <input type="text" id="add-item-busqueda" placeholder="Buscar repuesto por N° Parte o Código...">
+                            <button type="button" class="btn btn-secondary" id="btn-agregar-item">➕ Agregar al Vale</button>
+                        </div>
+
+                        <!-- Tabla del Vale Físico -->
+                        <table class="vale-items-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 25%;">CÓDIGO / Nº PARTE</th>
+                                    <th style="width: 35%;">DESCRIPCIÓN</th>
+                                    <th style="width: 10%;">UNID</th>
+                                    <th style="width: 10%;">CANTIDAD</th>
+                                    <th style="width: 20%;">EQUIPO</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vale-salida-items-body">
+                                <tr>
+                                    <td><input type="text" class="input-cell part-input" value="01-00499" required></td>
+                                    <td><input type="text" class="input-cell desc-input" value="Sensor de cilindro Boheo" required></td>
+                                    <td><input type="text" class="input-cell unid-input" value="UND"></td>
+                                    <td><input type="number" class="input-cell cant-input" value="1" min="1" required></td>
+                                    <td><input type="text" class="input-cell equip-input" value="HURON VA30"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pie del Vale: Especificaciones y Firmas -->
+                        <div class="vale-footer-grid">
+                            <div class="especificaciones-box">
+                                <label>ESPECIFICACIONES DE USO:</label>
+                                <textarea id="sal-especificaciones" rows="3" placeholder="Detalles de instalación o uso..."></textarea>
+                            </div>
+                            <div class="firmas-box">
+                                <div class="firma-columna">
+                                    <div class="espacio-firma"></div>
+                                    <p>AUTORIZADO</p>
+                                </div>
+                                <div class="firma-columna">
+                                    <div class="espacio-firma"></div>
+                                    <p>ALMACÉN</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions no-print" style="margin-top: 15px;">
+                        <button type="submit" class="btn btn-danger">Guardar Vale y Descontar del Almacén</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- VISTA: VALE DE ENTRADA -->
+            <section class="view-panel" id="panel-entradas">
+                <header class="panel-header">
+                    <h1>Registro de Vale de Entrada (Ingreso a Almacén)</h1>
+                </header>
+
+                <form class="form-grid" id="form-entrada">
+                    <div class="form-group">
+                        <label>N° de Vale de Ingreso</label>
+                        <input type="text" id="ent-nro" value="ENT-2026-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Recepción</label>
+                        <input type="date" id="ent-fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Proveedor / Empresa</label>
+                        <input type="text" id="ent-prov" placeholder="Ej: Sandvik del Perú" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Orden de Compra / Guía</label>
+                        <input type="text" id="ent-oc" placeholder="Ej: OC-8921">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Nº de Parte o Código Comercial a ingresar</label>
+                        <input type="text" id="ent-item" placeholder="Ingresa el N° de parte exacto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad que Ingresa</label>
+                        <input type="number" id="ent-cant" min="1" value="1" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Observaciones de Entrega</label>
+                        <textarea id="ent-obs" rows="2" placeholder="Estado del empaque, certificado de calidad..."></textarea>
+                    </div>
+                    <div class="form-actions full-width">
+                        <button type="submit" class="btn btn-primary">Registrar Ingreso y Sumar al Stock</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
