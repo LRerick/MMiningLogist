@@ -452,3 +452,37 @@ document.addEventListener("DOMContentLoaded", () => {
     // Iniciar carga automática del CSV desde el repositorio
     cargarCSVAutomatico();
 });
+
+// --- CONTROL DEL MENÚ LATERAL RESPONSIVO ---
+const btnToggleMenu = document.getElementById("btn-toggle-menu");
+const btnCloseMenu = document.getElementById("btn-close-menu");
+const sidebar = document.getElementById("app-sidebar");
+const overlay = document.getElementById("sidebar-overlay");
+const navItems = document.querySelectorAll(".nav-item");
+
+function abrirMenu() {
+    if (sidebar && overlay) {
+        sidebar.classList.add("active");
+        overlay.classList.add("active");
+    }
+}
+
+function cerrarMenu() {
+    if (sidebar && overlay) {
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+    }
+}
+
+if (btnToggleMenu) btnToggleMenu.addEventListener("click", abrirMenu);
+if (btnCloseMenu) btnCloseMenu.addEventListener("click", cerrarMenu);
+if (overlay) overlay.addEventListener("click", cerrarMenu);
+
+// Cerrar automáticamente el menú al hacer clic en cualquier opción (Dashboard, Inventario, etc.)
+navItems.forEach(item => {
+    item.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+            cerrarMenu();
+        }
+    });
+});
