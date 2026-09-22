@@ -599,3 +599,105 @@ input[type="radio"][name="vista"] {
         background: transparent;
     }
 }
+
+/* BOTONES DEL MENÚ MÓVIL */
+.btn-toggle-menu {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    background-color: #0284c7;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-close-menu {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.sidebar-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+}
+
+/* COMPORTAMIENTO PARA PANTALLAS PEQUEÑAS (CELULARES Y TABLETS) */
+@media (max-width: 768px) {
+    .btn-toggle-menu {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-close-menu {
+        display: block;
+    }
+
+    /* Ocultar la barra lateral fuera de la pantalla por defecto */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 270px;
+        height: 100vh;
+        z-index: 999;
+        transition: left 0.3s ease;
+        box-shadow: 3px 0 10px rgba(0,0,0,0.3);
+    }
+
+    /* Mostrar la barra lateral cuando tiene la clase 'active' */
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    /* Ajustar el contenido para que ocupe toda la pantalla del teléfono */
+    .main-content {
+        padding: 60px 14px 20px 14px;
+        width: 100%;
+    }
+
+    .filtro-barra {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vale-meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .meta-box {
+        border-right: none;
+        border-bottom: 1px solid #1e3a8a;
+    }
+}
