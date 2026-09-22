@@ -1,0 +1,428 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+input[type="radio"][name="vista"] {
+    display: none;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background-color: #0f172a;
+    color: #fff;
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar h2 {
+    font-size: 1.2rem;
+    color: #38bdf8;
+    padding-left: 10px;
+}
+
+.nav-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-item {
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: #94a3b8;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background: #1e293b;
+    color: #fff;
+}
+
+#tab-inventario:checked ~ .layout .sidebar label[for="tab-inventario"],
+#tab-salidas:checked ~ .layout .sidebar label[for="tab-salidas"],
+#tab-entradas:checked ~ .layout .sidebar label[for="tab-entradas"] {
+    background-color: #0284c7;
+    color: #ffffff;
+}
+
+.view-panel {
+    display: none;
+}
+
+#tab-inventario:checked ~ .main-content #panel-inventario,
+#tab-salidas:checked ~ .main-content #panel-salidas,
+#tab-entradas:checked ~ .main-content #panel-entradas {
+    display: block;
+}
+
+.main-content {
+    flex: 1;
+    padding: 28px;
+    overflow-y: auto;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #cbd5e1;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+}
+
+/* Filtros y Tablas Generales */
+.filtro-barra {
+    display: flex;
+    gap: 16px;
+    background: #fff;
+    padding: 14px 18px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.table-container {
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.data-table th, .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 600;
+}
+
+.tag {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+.tag.ok { background: #dcfce7; color: #166534; }
+.tag.warning { background: #fee2e2; color: #991b1b; }
+
+/* DISEÑO DEL VALE FÍSICO (TALLER HUACHIPA) */
+.vale-fisico-container {
+    background: #ffffff;
+    border: 2px solid #1e3a8a;
+    padding: 16px;
+    max-width: 950px;
+    margin: 0 auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.vale-header {
+    display: flex;
+    border-bottom: 2px solid #1e3a8a;
+    padding-bottom: 10px;
+    gap: 15px;
+    align-items: center;
+}
+
+.vale-logo h3 {
+    font-size: 1.1rem;
+    color: #1e3a8a;
+}
+.vale-logo p {
+    font-size: 0.65rem;
+    color: #64748b;
+}
+
+.vale-titulo-bloque {
+    flex: 1;
+    text-align: center;
+    border-left: 1px solid #93c5fd;
+    border-right: 1px solid #93c5fd;
+    padding: 0 10px;
+}
+
+.vale-titulo-bloque h2 {
+    font-size: 1rem;
+    color: #1e3a8a;
+    letter-spacing: 0.5px;
+}
+
+.vale-nro-bloque {
+    text-align: right;
+    min-width: 170px;
+}
+
+.lbl-rojo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc2626;
+}
+
+.input-nro-rojo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #dc2626;
+    border: none;
+    border-bottom: 1px solid #dc2626;
+    width: 100px;
+    text-align: center;
+    outline: none;
+}
+
+.sub-fecha {
+    font-size: 0.75rem;
+    margin-top: 5px;
+}
+.sub-fecha input {
+    border: 1px solid #94a3b8;
+    padding: 2px 4px;
+    font-size: 0.75rem;
+}
+
+.vale-meta-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1.2fr 1fr 1.3fr;
+    border-bottom: 1px solid #1e3a8a;
+}
+
+.meta-box {
+    border-right: 1px solid #1e3a8a;
+    padding: 8px;
+}
+.meta-box:last-child {
+    border-right: none;
+}
+
+.box-title {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 4px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font-size: 0.75rem;
+}
+
+.input-linea {
+    width: 100%;
+    border: none;
+    border-bottom: 1px dashed #64748b;
+    outline: none;
+    font-size: 0.85rem;
+    padding: 2px 0;
+}
+
+.vale-solicitud-grid {
+    border-bottom: 1px solid #1e3a8a;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.75rem;
+}
+
+.fila-solicitud {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.fila-solicitud label {
+    font-weight: 700;
+    color: #1e3a8a;
+    white-space: nowrap;
+}
+
+.linea-firma-vacia {
+    flex: 1;
+    border-bottom: 1px dashed #64748b;
+    height: 16px;
+}
+
+.buscador-item-vale {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+}
+.buscador-item-vale input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+}
+
+.vale-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #1e3a8a;
+}
+
+.vale-items-table th, .vale-items-table td {
+    border: 1px solid #1e3a8a;
+    padding: 4px;
+    text-align: center;
+    font-size: 0.75rem;
+}
+
+.vale-items-table th {
+    background-color: #f1f5f9;
+    color: #1e3a8a;
+    font-weight: 700;
+}
+
+.input-cell {
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 0.8rem;
+    background: transparent;
+}
+
+.vale-footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr;
+    border: 1px solid #1e3a8a;
+    border-top: none;
+}
+
+.especificaciones-box {
+    padding: 8px;
+    border-right: 1px solid #1e3a8a;
+}
+.especificaciones-box label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    display: block;
+}
+.especificaciones-box textarea {
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 0.8rem;
+}
+
+.firmas-box {
+    display: flex;
+}
+.firma-columna {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid #1e3a8a;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    padding-bottom: 4px;
+}
+.firma-columna:last-child {
+    border-right: none;
+}
+.espacio-firma {
+    height: 55px;
+}
+
+/* Botones */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-primary { background: #0284c7; color: #fff; }
+.btn-danger { background: #dc2626; color: #fff; }
+.btn-secondary { background: #e2e8f0; color: #1e293b; }
+
+.form-grid {
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.full-width { grid-column: 1 / -1; }
+
+/* FORMATO DE IMPRESIÓN (OCULTA BOTONES Y SIDEBAR) */
+@media print {
+    .no-print, .sidebar, input[type="radio"] {
+        display: none !important;
+    }
+    .layout {
+        display: block;
+    }
+    .main-content {
+        padding: 0;
+    }
+    .vale-fisico-container {
+        box-shadow: none;
+        border: 2px solid #000;
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+    .vale-header, .vale-meta-grid, .meta-box, .vale-solicitud-grid, 
+    .vale-items-table, .vale-items-table th, .vale-items-table td, 
+    .vale-footer-grid, .especificaciones-box, .firma-columna {
+        border-color: #000 !important;
+        color: #000 !important;
+    }
+    .box-title, .fila-solicitud label, .vale-titulo-bloque h2 {
+        color: #000 !important;
+    }
+    .lbl-rojo, .input-nro-rojo {
+        color: #000 !important;
+    }
+}
