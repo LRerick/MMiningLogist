@@ -14,7 +14,6 @@ const tablaCuerpo = document.getElementById("cuerpo-tabla");
 const cuerpoHistorial = document.getElementById("cuerpo-historial");
 const filtroEquipo = document.getElementById("filtro-equipo");
 const inputBusqueda = document.getElementById("input-busqueda");
-const inputCSV = document.getElementById("input-csv");
 const btnExportarCSV = document.getElementById("btn-exportar-csv");
 const btnExportarHistorial = document.getElementById("btn-exportar-historial");
 
@@ -26,6 +25,7 @@ const dashEntradas = document.getElementById("dash-total-entradas");
 const formSalida = document.getElementById("form-salida");
 const formEntrada = document.getElementById("form-entrada");
 const btnAgregarFila = document.getElementById("btn-agregar-item");
+const btnLimpiarVale = document.getElementById("btn-limpiar-vale");
 const inputBusquedaVale = document.getElementById("add-item-busqueda");
 const valeItemsBody = document.getElementById("vale-salida-items-body");
 
@@ -37,7 +37,7 @@ const overlay = document.getElementById("sidebar-overlay");
 const navItems = document.querySelectorAll(".nav-item");
 
 // ==========================================
-// 1. CARGA AUTOMÁTICA DEL ARCHIVO CSV
+// 1. CARGA AUTOMÁTICA DEL CSV
 // ==========================================
 async function cargarCSVAutomatico() {
     if (inventario.length > 0) {
@@ -92,7 +92,7 @@ async function cargarCSVAutomatico() {
 }
 
 window.recargarCSVOriginal = async function() {
-    if (confirm("¿Deseas restablecer el inventario original desde GitHub? Los movimientos en el historial se conservarán.")) {
+    if (confirm("¿Deseas restablecer el inventario original desde GitHub? Los movimientos registrados se conservarán.")) {
         localStorage.removeItem(DB_KEY_INVENTARIO);
         inventario = [];
         await cargarCSVAutomatico();
@@ -222,46 +222,8 @@ function actualizarDashboard() {
 }
 
 // ==========================================
-// 4. IMPORTACIÓN Y EXPORTACIÓN DE ARCHIVOS
+// 4. EXPORTACIÓN DE CSV
 // ==========================================
-if (inputCSV) {
-    inputCSV.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const lineas = evt.target.result.split(/\r?\n/).filter(l => l.trim() !== "");
-            if (lineas.length < 2) return alert("El archivo CSV no contiene filas de datos.");
-
-            const sep = lineas[0].includes(";") ? ";" : ",";
-            const cabeceras = lineas[0].split(sep).map(c => c.trim().toLowerCase().replace(/"/g, ""));
-
-            const parseados = [];
-            for (let i = 1; i < lineas.length; i++) {
-                const fila = lineas[i].split(sep).map(val => val.trim().replace(/"/g, ""));
-                if (fila.length < cabeceras.length) continue;
-
-                let itemObj = {};
-                cabeceras.forEach((col, idx) => {
-                    itemObj[col] = fila[idx] || "";
-                });
-
-                itemObj.stock = parseFloat(itemObj.stock) || 0;
-                parseados.push(itemObj);
-            }
-
-            if (parseados.length > 0) {
-                inventario = parseados;
-                localStorage.setItem(DB_KEY_INVENTARIO, JSON.stringify(inventario));
-                alert(`¡Se importaron ${parseados.length} repuestos correctamente!`);
-                renderizarInventario();
-            }
-        };
-        reader.readAsText(file);
-    });
-}
-
 if (btnExportarCSV) {
     btnExportarCSV.addEventListener("click", () => {
         if (inventario.length === 0) return alert("No hay datos en el inventario para exportar.");
@@ -303,26 +265,8 @@ if (btnExportarHistorial) {
 }
 
 // ==========================================
-// 5. VALE DE SALIDA (AÑADIR, QUITAR Y GUARDAR)
+// 5. VALE DE SALIDA (AÑADIR, EMITIR Y LIMPIAR)
 // ==========================================
-window.eliminarFilaVale = function(btn) {
-    const fila = btn.closest("tr");
-    const tbody = document.getElementById("vale-salida-items-body");
-    
-    if (tbody.querySelectorAll("tr").length <= 1) {
-        if (confirm("¿Deseas vaciar los datos de este repuesto?")) {
-            fila.querySelector(".part-input").value = "";
-            fila.querySelector(".desc-input").value = "";
-            fila.querySelector(".unid-input").value = "UND";
-            fila.querySelector(".cant-input").value = "1";
-            fila.querySelector(".equip-input").value = "";
-        }
-        return;
-    }
-
-    fila.remove();
-};
-
 if (btnAgregarFila) {
     btnAgregarFila.addEventListener("click", () => {
         const term = inputBusquedaVale.value.trim().toLowerCase();
@@ -335,6 +279,10 @@ if (btnAgregarFila) {
 
         if (!match) return alert("Repuesto no encontrado en el inventario.");
 
+        // Si existe el aviso de "Usa el buscador...", lo removemos al ingresar el primer producto
+        const filaVacia = document.getElementById("fila-vale-vacia");
+        if (filaVacia) filaVacia.remove();
+
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td><input type="text" class="input-cell part-input" value="${match.nro_parte || match.cod_comercial}" required></td>
@@ -342,26 +290,62 @@ if (btnAgregarFila) {
             <td><input type="text" class="input-cell unid-input" value="${match.unidad || 'UND'}"></td>
             <td><input type="number" class="input-cell cant-input" value="1" min="1" max="${match.stock}" required></td>
             <td><input type="text" class="input-cell equip-input" value="${match.equipo || ''}"></td>
-            <td class="no-print">
-                <button type="button" class="btn-remove-row" onclick="eliminarFilaVale(this)" title="Quitar este repuesto">✕</button>
-            </td>
         `;
         valeItemsBody.appendChild(tr);
         inputBusquedaVale.value = "";
     });
 }
 
+// Función para reiniciar/limpiar todo el formulario del vale
+function limpiarTodoElVale() {
+    // 1. Limpiar campos de texto
+    document.getElementById("sal-guia").value = "";
+    document.getElementById("sal-solicita").value = "";
+    document.getElementById("sal-destino").value = "";
+    document.getElementById("sal-especificaciones").value = "";
+    if (inputBusquedaVale) inputBusquedaVale.value = "";
+
+    // 2. Vaciar filas de repuestos
+    valeItemsBody.innerHTML = `
+        <tr id="fila-vale-vacia">
+            <td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">
+                Usa el buscador de arriba para añadir repuestos al vale.
+            </td>
+        </tr>
+    `;
+
+    // 3. Limpiar ambas firmas
+    limpiarFirma("canvas-autorizado");
+    limpiarFirma("canvas-almacen");
+
+    // 4. Restaurar fecha a hoy
+    const salFecha = document.getElementById("sal-fecha");
+    if (salFecha) salFecha.valueAsDate = new Date();
+}
+
+if (btnLimpiarVale) {
+    btnLimpiarVale.addEventListener("click", () => {
+        if (confirm("¿Estás seguro de que deseas vaciar y limpiar todo el vale?")) {
+            limpiarTodoElVale();
+        }
+    });
+}
+
 if (formSalida) {
     formSalida.addEventListener("submit", (e) => {
         e.preventDefault();
+
+        const filas = valeItemsBody.querySelectorAll("tr:not(#fila-vale-vacia)");
+        if (filas.length === 0) {
+            alert("El vale no contiene ningún repuesto. Agrega al menos uno usando el buscador.");
+            return;
+        }
+
         const nroVale = document.getElementById("sal-nro").value;
         const fecha = document.getElementById("sal-fecha").value;
         const motivoSalida = document.querySelector('input[name="motivo_salida"]:checked')?.value || "REPARACION DEL TALLER";
         const solicita = document.getElementById("sal-solicita").value;
         const destino = document.getElementById("sal-destino").value;
-        const filas = valeItemsBody.querySelectorAll("tr");
-
-        if (filas.length === 0) return alert("El vale no contiene ningún repuesto.");
 
         for (const fila of filas) {
             const parte = fila.querySelector(".part-input").value.trim();
@@ -393,7 +377,9 @@ if (formSalida) {
         localStorage.setItem(DB_KEY_INVENTARIO, JSON.stringify(inventario));
         localStorage.setItem(DB_KEY_HISTORIAL, JSON.stringify(historial));
 
-        alert(`¡Vale de Salida Nº ${nroVale} registrado con éxito! Stock actualizado.`);
+        alert(`¡Vale de Salida Nº ${nroVale} registrado con éxito! Stock actualizado y movimiento guardado.`);
+        
+        limpiarTodoElVale();
         renderizarInventario();
     });
 }
@@ -443,6 +429,10 @@ if (formEntrada) {
 
         alert(`¡Vale de Entrada Nº ${nroVale} registrado! Stock incrementado.`);
         formEntrada.reset();
+        
+        const entFecha = document.getElementById("ent-fecha");
+        if (entFecha) entFecha.valueAsDate = new Date();
+
         renderizarInventario();
     });
 }
