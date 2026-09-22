@@ -14,11 +14,18 @@
 
     <!-- Fondo oscuro semitransparente cuando el menú está abierto en móvil -->
     <div id="sidebar-overlay" class="sidebar-overlay no-print"></div>
+
     <div class="layout">
         <!-- Barra Lateral de Navegación -->
-        <aside class="sidebar no-print">
-            <h2>MACMINING</h2>
-            <p class="sidebar-sub">Taller Huachipa</p>
+        <aside class="sidebar no-print" id="app-sidebar">
+            <div class="sidebar-header-row">
+                <div>
+                    <h2>MACMINING</h2>
+                    <p class="sidebar-sub">Taller Huachipa</p>
+                </div>
+                <button type="button" id="btn-close-menu" class="btn-close-menu no-print">✕</button>
+            </div>
+            
             <div class="nav-tabs">
                 <label for="tab-dashboard" class="nav-item">📊 Dashboard & Registro</label>
                 <label for="tab-inventario" class="nav-item">📦 Inventario Maestro</label>
@@ -95,9 +102,8 @@
                 <header class="panel-header">
                     <h1>Inventario General de Repuestos</h1>
                     <div class="header-actions">
-                        <input type="file" id="input-csv" accept=".csv" style="display: none;">
-                        <button type="button" class="btn btn-primary" onclick="document.getElementById('input-csv').click()">📥 Importar CSV</button>
-                        <button type="button" class="btn btn-secondary" id="btn-exportar-csv">📤 Descargar CSV Actualizado</button>
+                        <button type="button" class="btn btn-secondary" onclick="recargarCSVOriginal()">🔄 Recargar CSV Original</button>
+                        <button type="button" class="btn btn-primary" id="btn-exportar-csv">📤 Descargar CSV Actualizado</button>
                     </div>
                 </header>
 
@@ -115,7 +121,7 @@
                 </div>
 
                 <div class="alert-info">
-                    💡 <em>Puedes hacer doble clic o editar directamente las columnas <strong>Observación</strong>, <strong>Stock</strong> y <strong>Ubicación</strong>. Los cambios se guardan automáticamente.</em>
+                    💡 <em>Puedes editar directamente las columnas <strong>Observación</strong>, <strong>Stock</strong> y <strong>Ubicación</strong>. Los cambios se guardan automáticamente.</em>
                 </div>
 
                 <div class="table-container">
@@ -132,7 +138,7 @@
                                 <th>Stock</th>
                                 <th>Ubicación</th>
                                 <th>Observaciones (Editable)</th>
-                                <th>Acción</th>
+                                <th>Estado</th>
                             </tr>
                         </thead>
                         <tbody id="cuerpo-tabla">
@@ -222,33 +228,27 @@
                             <button type="button" class="btn btn-secondary" id="btn-agregar-item">➕ Añadir al Vale</button>
                         </div>
 
-                        <!-- Tabla física del vale -->
+                        <!-- Tabla física del vale (Sin columna acción y limpia) -->
                         <table class="vale-items-table">
                             <thead>
                                 <tr>
                                     <th style="width: 25%;">CÓDIGO / Nº PARTE</th>
-                                    <th style="width: 32%;">DESCRIPCIÓN</th>
+                                    <th style="width: 35%;">DESCRIPCIÓN</th>
                                     <th style="width: 10%;">UNID</th>
                                     <th style="width: 10%;">CANTIDAD</th>
-                                    <th style="width: 18%;">EQUIPO</th>
-                                    <th style="width: 5%;" class="no-print">ACCIÓN</th>
+                                    <th style="width: 20%;">EQUIPO</th>
                                 </tr>
                             </thead>
-                        <tbody id="vale-salida-items-body">
-                            <tr>
-                                <td><input type="text" class="input-cell part-input" value="01-00499" required></td>
-                                <td><input type="text" class="input-cell desc-input" value="Sensor de cilindro Boheo" required></td>
-                                <td><input type="text" class="input-cell unid-input" value="UND"></td>
-                                <td><input type="number" class="input-cell cant-input" value="1" min="1" required></td>
-                                <td><input type="text" class="input-cell equip-input" value="HURON VA30"></td>
-                                <td class="no-print">
-                                    <button type="button" class="btn-remove-row" onclick="eliminarFilaVale(this)" title="Quitar este repuesto">✕</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                            <tbody id="vale-salida-items-body">
+                                <tr id="fila-vale-vacia">
+                                    <td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">
+                                        Usa el buscador de arriba para añadir repuestos al vale.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-                        <!-- Pie del vale: Especificaciones y Firmas interactivas en Canvas -->
+                        <!-- Pie del vale: Especificaciones y Firmas -->
                         <div class="vale-footer-grid">
                             <div class="especificaciones-box">
                                 <label>ESPECIFICACIONES DE USO:</label>
@@ -269,8 +269,10 @@
                         </div>
                     </div>
 
-                    <div class="form-actions no-print" style="margin-top: 15px;">
+                    <!-- Botones de Acción Inferiores -->
+                    <div class="form-actions no-print" style="margin-top: 15px; display: flex; gap: 12px;">
                         <button type="submit" class="btn btn-danger">Emitir Vale, Descontar Stock y Guardar Registro</button>
+                        <button type="button" class="btn btn-secondary" id="btn-limpiar-vale">🗑️ Limpiar Todo el Vale</button>
                     </div>
                 </form>
             </section>
