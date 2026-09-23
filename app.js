@@ -12,6 +12,7 @@ let historial = JSON.parse(localStorage.getItem(DB_KEY_HISTORIAL)) || [];
 // REFERENCIAS DEL DOM
 const tablaCuerpo = document.getElementById("cuerpo-tabla");
 const cuerpoHistorial = document.getElementById("cuerpo-historial");
+const filtroMarca = document.getElementById("filtro-marca");
 const filtroEquipo = document.getElementById("filtro-equipo");
 const inputBusqueda = document.getElementById("input-busqueda");
 const btnExportarCSV = document.getElementById("btn-exportar-csv");
@@ -104,19 +105,27 @@ window.recargarCSVOriginal = async function() {
 // 2. INVENTARIO (RENDERIZADO Y EDICIÓN)
 // ==========================================
 function renderizarInventario() {
-    actualizarEquiposEnFiltro();
+    actualizarFiltrosDesplegables();
     actualizarDashboard();
 
     if (!tablaCuerpo) return;
 
     let items = [...inventario];
+    const marcaSel = filtroMarca ? filtroMarca.value : "TODOS";
     const equipoSel = filtroEquipo ? filtroEquipo.value : "TODOS";
     const busqueda = inputBusqueda ? inputBusqueda.value.trim().toLowerCase() : "";
 
-    if (equipoSel !== "TODOS") {
-        items = items.filter(r => (r.equipo || "").toUpperCase() === equipoSel.toUpperCase());
+    // Filtro por Marca
+    if (marcaSel !== "TODOS") {
+        items = items.filter(r => (r.marca || "").trim().toUpperCase() === marcaSel.toUpperCase());
     }
 
+    // Filtro por Equipo
+    if (equipoSel !== "TODOS") {
+        items = items.filter(r => (r.equipo || "").trim().toUpperCase() === equipoSel.toUpperCase());
+    }
+
+    // Buscador general de texto
     if (busqueda !== "") {
         items = items.filter(r => 
             (r.descripcion || "").toLowerCase().includes(busqueda) ||
@@ -170,16 +179,31 @@ window.guardarCambioFila = function(index, campo, valor) {
     }
 };
 
-function actualizarEquiposEnFiltro() {
-    if (!filtroEquipo) return;
-    const equiposUnicos = [...new Set(inventario.map(i => (i.equipo || "").trim()).filter(Boolean))];
-    const valorPrevio = filtroEquipo.value;
+function actualizarFiltrosDesplegables() {
+    // 1. Selector de Marca
+    if (filtroMarca) {
+        const marcasUnicas = [...new Set(inventario.map(i => (i.marca || "").trim()).filter(Boolean))].sort();
+        const valorPrevioMarca = filtroMarca.value;
 
-    filtroEquipo.innerHTML = `<option value="TODOS">-- Todos los Equipos --</option>` + 
-        equiposUnicos.map(eq => `<option value="${eq}">${eq}</option>`).join("");
-    
-    if (equiposUnicos.includes(valorPrevio)) {
-        filtroEquipo.value = valorPrevio;
+        filtroMarca.innerHTML = `<option value="TODOS">-- Todas las Marcas --</option>` + 
+            marcasUnicas.map(m => `<option value="${m}">${m}</option>`).join("");
+        
+        if (marcasUnicas.includes(valorPrevioMarca)) {
+            filtroMarca.value = valorPrevioMarca;
+        }
+    }
+
+    // 2. Selector de Equipos
+    if (filtroEquipo) {
+        const equiposUnicos = [...new Set(inventario.map(i => (i.equipo || "").trim()).filter(Boolean))].sort();
+        const valorPrevioEquipo = filtroEquipo.value;
+
+        filtroEquipo.innerHTML = `<option value="TODOS">-- Todos los Equipos --</option>` + 
+            equiposUnicos.map(eq => `<option value="${eq}">${eq}</option>`).join("");
+        
+        if (equiposUnicos.includes(valorPrevioEquipo)) {
+            filtroEquipo.value = valorPrevioEquipo;
+        }
     }
 }
 
@@ -279,7 +303,6 @@ if (btnAgregarFila) {
 
         if (!match) return alert("Repuesto no encontrado en el inventario.");
 
-        // Si existe el aviso de "Usa el buscador...", lo removemos al ingresar el primer producto
         const filaVacia = document.getElementById("fila-vale-vacia");
         if (filaVacia) filaVacia.remove();
 
@@ -296,16 +319,13 @@ if (btnAgregarFila) {
     });
 }
 
-// Función para reiniciar/limpiar todo el formulario del vale
 function limpiarTodoElVale() {
-    // 1. Limpiar campos de texto
     document.getElementById("sal-guia").value = "";
     document.getElementById("sal-solicita").value = "";
     document.getElementById("sal-destino").value = "";
     document.getElementById("sal-especificaciones").value = "";
     if (inputBusquedaVale) inputBusquedaVale.value = "";
 
-    // 2. Vaciar filas de repuestos
     valeItemsBody.innerHTML = `
         <tr id="fila-vale-vacia">
             <td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">
@@ -314,11 +334,9 @@ function limpiarTodoElVale() {
         </tr>
     `;
 
-    // 3. Limpiar ambas firmas
     limpiarFirma("canvas-autorizado");
     limpiarFirma("canvas-almacen");
 
-    // 4. Restaurar fecha a hoy
     const salFecha = document.getElementById("sal-fecha");
     if (salFecha) salFecha.valueAsDate = new Date();
 }
@@ -534,6 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const entFecha = document.getElementById("ent-fecha");
     if (entFecha) entFecha.valueAsDate = new Date();
 
+    if (filtroMarca) filtroMarca.addEventListener("change", renderizarInventario);
     if (filtroEquipo) filtroEquipo.addEventListener("change", renderizarInventario);
     if (inputBusqueda) inputBusqueda.addEventListener("input", renderizarInventario);
 
