@@ -446,7 +446,7 @@ input[type="radio"][name="vista"] {
 
 .vale-items-table th, .vale-items-table td {
     border: 1px solid #1e3a8a;
-    padding: 4px;
+    padding: 6px 4px;
     text-align: center;
     font-size: 0.75rem;
 }
