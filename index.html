@@ -12,7 +12,7 @@
         ☰
     </button>
 
-    <!-- Fondo oscuro semitransparente cuando el menú está abierto en móvil -->
+    <!-- Fondo oscuro cuando el menú está abierto en móvil -->
     <div id="sidebar-overlay" class="sidebar-overlay no-print"></div>
 
     <div class="layout">
@@ -108,6 +108,12 @@
                 </header>
 
                 <div class="filtro-barra">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Filtrar por Marca:</label>
+                        <select id="filtro-marca">
+                            <option value="TODOS">-- Todas las Marcas --</option>
+                        </select>
+                    </div>
                     <div class="form-group" style="flex: 1;">
                         <label>Filtrar por Equipo:</label>
                         <select id="filtro-equipo">
@@ -222,13 +228,13 @@
                             </div>
                         </div>
 
-                        <!-- Barra de búsqueda rápida para agregar ítems -->
+                        <!-- Buscador rápido para agregar repuestos -->
                         <div class="buscador-item-vale no-print">
                             <input type="text" id="add-item-busqueda" placeholder="Buscar repuesto en el inventario por N° parte o código...">
                             <button type="button" class="btn btn-secondary" id="btn-agregar-item">➕ Añadir al Vale</button>
                         </div>
 
-                        <!-- Tabla física del vale (Sin columna acción y limpia) -->
+                        <!-- Tabla física del vale limpia -->
                         <table class="vale-items-table">
                             <thead>
                                 <tr>
